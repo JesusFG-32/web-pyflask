@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<header>
+    <h1>Conference Schedule</h1>
+    <div class="event-details">
+        <span>📅 {{ date }}</span>
+        <span>📍 {{ location }}</span>
+    </div>
+</header>
+
+<div class="search-container">
+    <input type="text" id="search-input" placeholder="Search talks, speakers, or topics...">
+</div>
+
+<main class="schedule-grid" id="schedule-container">
+    {% for event in schedule %}
+    <div class="event-card" data-title="{{ event.title }}" data-category="{{ ' '.join(event.category) }}"
+        data-speakers="{% for sp in event.speaker_details %}{{ sp.first }} {{ sp.last }} {% endfor %}">
+
+        <div class="event-time">{{ event.time }}</div>
+
+        <div class="event-content">
+            <div class="event-meta">
+                {% for cat in event.category %}
+                <span class="badge {% if event.type == 'break' %}badge-break{% endif %}">{{ cat }}</span>
+                {% endfor %}
+            </div>
+
+            <h3>{{ event.title }}</h3>
+            <div class="event-description">{{ event.description }}</div>
+
+            {% if event.speaker_details %}
+            <div class="speakers">
+                {% for speaker in event.speaker_details %}
+                <div class="speaker">
+                    <span class="speaker-icon">👤</span>
+                    <a href="{{ speaker.linkedin }}" target="_blank">
+                        {{ speaker.first }} {{ speaker.last }}
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchInput = document.getElementById('search-input');
+        const eventCards = document.querySelectorAll('.event-card');
+
+        searchInput.addEventListener('input', function (e) {
+            const query = e.target.value.toLowerCase();
+
+            eventCards.forEach(card => {
+                const title = card.getAttribute('data-title').toLowerCase();
+                const category = card.getAttribute('data-category').toLowerCase();
+                const speakers = card.getAttribute('data-speakers').toLowerCase();
+
+                if (title.includes(query) || category.includes(query) || speakers.includes(query)) {
+                    card.style.display = 'grid';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
